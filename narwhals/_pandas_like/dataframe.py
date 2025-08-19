@@ -33,7 +33,7 @@ from narwhals._utils import (
     scale_bytes,
     zip_strict,
 )
-from narwhals.dependencies import is_pandas_like_dataframe
+from narwhals.dependencies import get_bigframes, is_pandas_like_dataframe
 from narwhals.exceptions import InvalidOperationError, ShapeError
 from narwhals.functions import col as nw_col
 
@@ -125,6 +125,9 @@ class PandasLikeDataFrame(
         tbl = _into_arrow_table(data, context)
         if implementation.is_pandas():
             native = tbl.to_pandas()
+        elif implementation.is_bigframes():
+            bpd = get_bigframes()
+            native = bpd.read_arrow(tbl)
         elif implementation.is_modin():
             # NOTE: Function moved + deprecated (0.26.0), then old path removed (0.31.0)
             # https://github.com/modin-project/modin/pull/6806

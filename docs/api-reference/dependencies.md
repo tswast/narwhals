@@ -4,12 +4,16 @@
     handler: python
     options:
       members:
+        - get_bigframes
         - get_cudf
         - get_ibis
         - get_modin
         - get_pandas
         - get_polars
         - get_pyarrow
+        - is_bigframes_dataframe
+        - is_bigframes_index
+        - is_bigframes_series
         - is_cudf_dataframe
         - is_cudf_index
         - is_cudf_series

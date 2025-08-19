@@ -31,6 +31,7 @@ from narwhals._enum import NoAutoEnum
 from narwhals._exceptions import issue_deprecation_warning
 from narwhals._typing_compat import assert_never, deprecated
 from narwhals.dependencies import (
+    get_bigframes,
     get_cudf,
     get_dask_dataframe,
     get_duckdb,
@@ -327,6 +328,8 @@ class Implementation(NoAutoEnum):
 
     PANDAS = "pandas"
     """pandas implementation."""
+    BIGFRAMES = "bigframes"
+    """BigFrames implementation."""
     MODIN = "modin"
     """Modin implementation."""
     CUDF = "cudf"
@@ -364,6 +367,7 @@ class Implementation(NoAutoEnum):
         """
         mapping = {
             get_pandas(): Implementation.PANDAS,
+            get_bigframes(): Implementation.BIGFRAMES,
             get_modin(): Implementation.MODIN,
             get_cudf(): Implementation.CUDF,
             get_pyarrow(): Implementation.PYARROW,
@@ -440,7 +444,7 @@ class Implementation(NoAutoEnum):
             >>> df.implementation.is_pandas_like()
             True
         """
-        return self in {Implementation.PANDAS, Implementation.MODIN, Implementation.CUDF}
+        return self in {Implementation.PANDAS, Implementation.BIGFRAMES, Implementation.MODIN, Implementation.CUDF}
 
     def is_spark_like(self) -> bool:
         """Return whether implementation is pyspark or sqlframe.
@@ -471,6 +475,19 @@ class Implementation(NoAutoEnum):
             True
         """
         return self is Implementation.POLARS
+
+    def is_bigframes(self) -> bool:
+        """Return whether implementation is BigFrames.
+
+        Examples:
+            >>> import polars as pl
+            >>> import narwhals as nw
+            >>> df_native = pl.DataFrame({"a": [1, 2, 3]})
+            >>> df = nw.from_native(df_native)
+            >>> df.implementation.is_bigframes()
+            False
+        """
+        return self is Implementation.BIGFRAMES  # pragma: no cover
 
     def is_cudf(self) -> bool:
         """Return whether implementation is cuDF.
@@ -603,6 +620,7 @@ def is_pyspark_pre_4(implementation: Implementation) -> bool:
 
 MIN_VERSIONS: Mapping[Implementation, tuple[int, ...]] = {
     Implementation.PANDAS: (1, 1, 3),
+    Implementation.BIGFRAMES: (2, 9, 0),
     Implementation.MODIN: (0, 8, 2),
     Implementation.CUDF: (24, 10),
     Implementation.PYARROW: (13,),
@@ -617,6 +635,7 @@ MIN_VERSIONS: Mapping[Implementation, tuple[int, ...]] = {
 
 _IMPLEMENTATION_TO_MODULE_NAME: Mapping[Implementation, str] = {
     Implementation.DASK: "dask.dataframe",
+    Implementation.BIGFRAMES: "bigframes.pandas",
     Implementation.MODIN: "modin.pandas",
     Implementation.PYSPARK: "pyspark.sql",
     Implementation.PYSPARK_CONNECT: "pyspark.sql.connect",

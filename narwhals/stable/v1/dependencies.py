@@ -4,6 +4,7 @@ import sys
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    import bigframes.pandas as bpd
     import cudf
     import dask.dataframe as dd
     import ibis
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
 
 from narwhals.dependencies import (
     IMPORT_HOOKS,
+    get_bigframes,
     get_cudf,
     get_dask_dataframe,
     get_ibis,
@@ -50,6 +52,16 @@ def is_pandas_series(ser: Any) -> TypeIs[pd.Series[Any]]:
         and isinstance(ser, mod.pandas.Series)
         for module_name in IMPORT_HOOKS
     )
+
+
+def is_bigframes_dataframe(df: Any) -> TypeIs[bpd.DataFrame]:
+    """Check whether `df` is a bigframes DataFrame without importing bigframes."""
+    return (bpd := get_bigframes()) is not None and isinstance(df, bpd.DataFrame)
+
+
+def is_bigframes_series(ser: Any) -> TypeIs[bpd.Series]:
+    """Check whether `ser` is a bigframes Series without importing bigframes."""
+    return (bpd := get_bigframes()) is not None and isinstance(ser, bpd.Series)
 
 
 def is_modin_dataframe(df: Any) -> TypeIs[mpd.DataFrame]:
@@ -110,20 +122,21 @@ def is_pyarrow_table(df: Any) -> TypeIs[pa.Table]:
 def is_pandas_like_dataframe(df: Any) -> bool:
     """Check whether `df` is a pandas-like DataFrame without doing any imports.
 
-    By "pandas-like", we mean: pandas, Modin, cuDF.
+    By "pandas-like", we mean: pandas, BigFrames, Modin, cuDF.
     """
-    return is_pandas_dataframe(df) or is_modin_dataframe(df) or is_cudf_dataframe(df)
+    return is_pandas_dataframe(df) or is_bigframes_dataframe(df) or is_modin_dataframe(df) or is_cudf_dataframe(df)
 
 
 def is_pandas_like_series(ser: Any) -> bool:
     """Check whether `ser` is a pandas-like Series without doing any imports.
 
-    By "pandas-like", we mean: pandas, Modin, cuDF.
+    By "pandas-like", we mean: pandas, BigFrames, Modin, cuDF.
     """
-    return is_pandas_series(ser) or is_modin_series(ser) or is_cudf_series(ser)
+    return is_pandas_series(ser) or is_bigframes_series(ser) or is_modin_series(ser) or is_cudf_series(ser)
 
 
 __all__ = [
+    "get_bigframes",
     "get_cudf",
     "get_ibis",
     "get_modin",
@@ -137,6 +150,8 @@ __all__ = [
     "is_ibis_table",
     "is_into_dataframe",
     "is_into_series",
+    "is_bigframes_dataframe",
+    "is_bigframes_series",
     "is_modin_dataframe",
     "is_modin_series",
     "is_narwhals_dataframe",

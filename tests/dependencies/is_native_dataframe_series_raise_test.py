@@ -12,6 +12,8 @@ from narwhals.dependencies import (
     is_cudf_dataframe,
     is_cudf_series,
     is_ibis_table,
+    is_bigframes_dataframe,
+    is_bigframes_series,
     is_modin_dataframe,
     is_modin_series,
     is_pandas_dataframe,
@@ -30,6 +32,7 @@ from narwhals.dependencies import (
     "is_native_dataframe",
     [
         is_pandas_dataframe,
+        is_bigframes_dataframe,
         is_modin_dataframe,
         is_polars_dataframe,
         is_cudf_dataframe,
@@ -50,6 +53,7 @@ def test_is_native_dataframe(is_native_dataframe: Callable[[Any], Any]) -> None:
     "is_native_series",
     [
         is_pandas_series,
+        is_bigframes_series,
         is_modin_series,
         is_polars_series,
         is_cudf_series,

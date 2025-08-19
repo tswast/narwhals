@@ -112,6 +112,16 @@ def pandas_pyarrow_constructor(obj: Data) -> pd.DataFrame:
     return pd.DataFrame(obj).convert_dtypes(dtype_backend="pyarrow")
 
 
+def bigframes_constructor(obj: Data) -> IntoDataFrame:  # pragma: no cover
+    import bigframes.pandas as bpd
+    import pandas as pd
+
+    bpd.options.bigquery.location = "US"
+    bpd.options.display.progress_bar = None
+    df = bpd.DataFrame(pd.DataFrame(obj))
+    return cast("IntoDataFrame", df)
+
+
 def modin_constructor(obj: Data) -> IntoDataFrame:  # pragma: no cover
     import modin.pandas as mpd
     import pandas as pd
@@ -239,6 +249,7 @@ EAGER_CONSTRUCTORS: dict[str, ConstructorEager] = {
     "pandas[nullable]": pandas_nullable_constructor,
     "pandas[pyarrow]": pandas_pyarrow_constructor,
     "pyarrow": pyarrow_table_constructor,
+    "bigframes": bigframes_constructor,
     "modin": modin_constructor,
     "modin[pyarrow]": modin_pyarrow_constructor,
     "cudf": cudf_constructor,

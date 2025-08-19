@@ -108,6 +108,7 @@ from collections.abc import Callable, Collection, Iterable, Sized
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar, Union, cast
 
 from narwhals.dependencies import (
+    get_bigframes,
     get_cudf,
     get_modin,
     get_pandas,
@@ -246,6 +247,14 @@ class NativeDask(NativeLazyFrame, Protocol):
     _partition_type: type[pd.DataFrame]
 
 
+class _BigFramesDataFrame(_BasePandasLikeFrame, Protocol):
+    def to_gbq(self, *args: Any, **kwds: Any) -> Any: ...
+
+
+class _BigFramesSeries(_BasePandasLikeSeries, Protocol):
+    def to_gbq(self, *args: Any, **kwds: Any) -> Any: ...
+
+
 class _CuDFDataFrame(_BasePandasLikeFrame, Protocol):
     def to_pylibcudf(self, *args: Any, **kwds: Any) -> Any: ...
 
@@ -275,12 +284,13 @@ class _PySparkDataFrame(NativeLazyFrame, Protocol):
 
 NativePolars: TypeAlias = "pl.DataFrame | pl.LazyFrame | pl.Series"
 NativeArrow: TypeAlias = "pa.Table | pa.ChunkedArray[Any]"
+NativeBigFrames: TypeAlias = "_BigFramesDataFrame | _BigFramesSeries"
 NativeDuckDB: TypeAlias = "duckdb.DuckDBPyRelation"
 NativePandas: TypeAlias = "pd.DataFrame | pd.Series[Any]"
 NativeModin: TypeAlias = "_ModinDataFrame | _ModinSeries"
 NativeCuDF: TypeAlias = "_CuDFDataFrame | _CuDFSeries"
-NativePandasLikeSeries: TypeAlias = "pd.Series[Any] | _CuDFSeries | _ModinSeries"
-NativePandasLikeDataFrame: TypeAlias = "pd.DataFrame | _CuDFDataFrame | _ModinDataFrame"
+NativePandasLikeSeries: TypeAlias = "pd.Series[Any] | _BigFramesSeries |_CuDFSeries | _ModinSeries"
+NativePandasLikeDataFrame: TypeAlias = "pd.DataFrame | _BigFramesDataFrame |_CuDFDataFrame | _ModinDataFrame"
 NativePandasLike: TypeAlias = "NativePandasLikeDataFrame | NativePandasLikeSeries"
 NativeSQLFrame: TypeAlias = "_BaseDataFrame[Any, Any, Any, Any, Any]"
 NativePySpark: TypeAlias = _PySparkDataFrame
@@ -386,6 +396,12 @@ def is_native_polars(obj: Any) -> TypeIs[NativePolars]:
 def is_native_arrow(obj: Any) -> TypeIs[NativeArrow]:
     return (pa := get_pyarrow()) is not None and isinstance(
         obj, (pa.Table, pa.ChunkedArray)
+    )
+
+
+def is_native_bigframes(obj: Any) -> TypeIs[NativeBigFrames]:
+    return (bf:= get_bigframes()) is not None and isinstance(
+        obj, (bf.DataFrame, bf.Series)
     )
 
 

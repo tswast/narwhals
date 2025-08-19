@@ -42,7 +42,7 @@ Repository = "https://github.com/narwhals-dev/narwhals"
 # `modin.pandas.__version__`. The latter is the one that we make
 # API decisions based on, so that's the one we track internally.
 # We have yet to determine the minimum Modin version we support
-# https://github.com/narwhals-dev/narwhals/issues/817 
+# https://github.com/narwhals-dev/narwhals/issues/817
 pandas = ["pandas>=1.1.3"]
 modin = ["modin"]
 cudf = ["cudf-cu12>=24.10.0"]
@@ -59,7 +59,7 @@ sql = ["duckdb>=1.1", "sqlparse"]
 [dependency-groups]
 core = [
   "narwhals[duckdb,pandas,polars,pyarrow,sqlframe,sql]"
-] 
+]
 tests = [
   "covdefaults",
   "pytest",
@@ -189,23 +189,23 @@ builtins-ignorelist = ["format"]
 
 [tool.ruff.lint.pep8-naming]
 extend-ignore-names = [
-  "Series", 
-  "DataFrame", 
-  "_Window", 
-  "F", 
+  "Series",
+  "DataFrame",
+  "_Window",
+  "F",
   "_F",
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"narwhals/expr_dt.py" = ["RUF002"] 
+"narwhals/expr_dt.py" = ["RUF002"]
 "narwhals/typing.py" = [
   "PYI042",  # snake-case-type-alias (catches `_1DArray`)
-] 
+]
 "narwhals/_*/utils.py" = [
   "PLR0911", # too-many-return-statements
 ]
 "tests/*" = [
-  "S101", 
+  "S101",
   "C901",    # complex-structure
   "PLR0912", # too-many-branches
   "PLR0916", # too-many-boolean-expressions
@@ -247,7 +247,7 @@ filterwarnings = [
   'ignore:.*defaulting to pandas implementation:Warning:modin',
   'ignore:.*implementation has mismatches with pandas:Warning:modin',
   'ignore:.*You are using pyarrow version',
-  
+
   # Deprecation raised by DuckDB
   'ignore:.*fetch_arrow_table\(\) is deprecated:DeprecationWarning:sqlframe',
   'ignore:.*fetch_arrow_table\(\) is deprecated:DeprecationWarning:ibis',
@@ -319,9 +319,9 @@ omit = [
 ]
 exclude_also = [
   "if sys.version_info() <",
-  "if .* is Implementation.(CUDF|MODIN|PYSPARK|PYSPARK_CONNECT|IBIS)",
-  "if .*.is_(cudf|modin|pyspark|pyspark_connect|ibis)",
-  'if "(cudf|modin|pyspark|ibis)" in',
+  "if .* is Implementation.(BIGFRAMES|CUDF|MODIN|PYSPARK|PYSPARK_CONNECT|IBIS)",
+  "if .*.is_(bigframes|cudf|modin|pyspark|pyspark_connect|ibis)",
+  'if "(bigframes|cudf|modin|pyspark|ibis)" in',
   "if not .*.is_pandas",
   "if is_ibis_table",
   "except ModuleNotFoundError",

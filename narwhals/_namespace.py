@@ -23,6 +23,7 @@ from narwhals._native import (
     _ModinDataFrame,
     _ModinSeries,
     is_native_arrow,
+    is_native_bigframes,
     is_native_cudf,
     is_native_dask,
     is_native_duckdb,
@@ -268,6 +269,8 @@ class Namespace(Generic[CompliantNamespaceT_co]):
             impl = Implementation.DASK
         elif is_native_duckdb(native):
             impl = Implementation.DUCKDB
+        elif is_native_bigframes(native):
+            impl = Implementation.BIGFRAMES
         elif is_native_cudf(native):  # pragma: no cover
             impl = Implementation.CUDF
         elif is_native_modin(native):  # pragma: no cover

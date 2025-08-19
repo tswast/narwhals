@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 from narwhals._exceptions import issue_warning
 
 if TYPE_CHECKING:
+    import bigframes.pandas as bpd
     import cudf
     import dask.dataframe as dd
     import duckdb
@@ -52,6 +53,13 @@ def get_polars() -> Any:
 def get_pandas() -> Any:
     """Get pandas module (if already imported - else return None)."""
     return sys.modules.get("pandas", None)
+
+
+def get_bigframes() -> Any:
+    """Get BigFrames module (if already imported - else return None)."""
+    if (bigframes := sys.modules.get("bigframes", None)) is not None:
+        return bigframes.pandas
+    return None
 
 
 def get_modin() -> Any:  # pragma: no cover
@@ -181,6 +189,31 @@ def is_pandas_index(index: Any) -> TypeIs[pd.Index[Any]]:
         and isinstance(index, mod.pandas.Index)
         for module_name in IMPORT_HOOKS
     )
+
+
+def is_bigframes_dataframe(df: Any) -> TypeIs[bpd.DataFrame]:
+    """Check whether `df` is a bigframes DataFrame without importing bigframes.
+
+    Warning:
+        This method cannot be called on a Narwhals DataFrame/LazyFrame.
+    """
+    _warn_if_narwhals_df_or_lf(df)
+    return (bpd := get_bigframes()) is not None and isinstance(df, bpd.DataFrame)
+
+
+def is_bigframes_series(ser: Any) -> TypeIs[bpd.Series]:
+    """Check whether `ser` is a bigframes Series without importing bigframes.
+
+    Warning:
+        This method cannot be called on Narwhals Series.
+    """
+    _warn_if_narwhals_series(ser)
+    return (bpd := get_bigframes()) is not None and isinstance(ser, bpd.Series)
+
+
+def is_bigframes_index(index: Any) -> TypeIs[bpd.Index]:  # pragma: no cover
+    """Check whether `index` is a bigframes Index without importing bigframes."""
+    return (bpd := get_bigframes()) is not None and isinstance(index, bpd.Index)
 
 
 def is_modin_dataframe(df: Any) -> TypeIs[mpd.DataFrame]:
@@ -433,34 +466,34 @@ def is_numpy_scalar(scalar: Any) -> TypeGuard[_NumpyScalar]:
 def is_pandas_like_dataframe(df: Any) -> bool:
     """Check whether `df` is a pandas-like DataFrame without doing any imports.
 
-    By "pandas-like", we mean: pandas, Modin, cuDF.
+    By "pandas-like", we mean: pandas, BigFrames, Modin, cuDF.
 
     Warning:
         This method cannot be called on a Narwhals DataFrame/LazyFrame.
     """
     _warn_if_narwhals_df_or_lf(df)
-    return is_pandas_dataframe(df) or is_modin_dataframe(df) or is_cudf_dataframe(df)
+    return is_pandas_dataframe(df) or is_bigframes_dataframe(df) or is_modin_dataframe(df) or is_cudf_dataframe(df)
 
 
 def is_pandas_like_series(ser: Any) -> bool:
     """Check whether `ser` is a pandas-like Series without doing any imports.
 
-    By "pandas-like", we mean: pandas, Modin, cuDF.
+    By "pandas-like", we mean: pandas, BigFrames, Modin, cuDF.
 
     Warning:
         This method cannot be called on Narwhals Series.
     """
     _warn_if_narwhals_series(ser)
-    return is_pandas_series(ser) or is_modin_series(ser) or is_cudf_series(ser)
+    return is_pandas_series(ser) or is_bigframes_series(ser) or is_modin_series(ser) or is_cudf_series(ser)
 
 
 def is_pandas_like_index(index: Any) -> bool:
     """Check whether `index` is a pandas-like Index without doing any imports.
 
-    By "pandas-like", we mean: pandas, Modin, cuDF.
+    By "pandas-like", we mean: pandas, BigFrames, Modin, cuDF.
     """
     return (
-        is_pandas_index(index) or is_modin_index(index) or is_cudf_index(index)
+        is_pandas_index(index) or is_bigframes_index(index) or is_modin_index(index) or is_cudf_index(index)
     )  # pragma: no cover
 
 
@@ -599,6 +632,7 @@ def is_narwhals_series_bool(
 
 
 __all__ = [
+    "get_bigframes",
     "get_cudf",
     "get_ibis",
     "get_modin",
@@ -606,6 +640,8 @@ __all__ = [
     "get_pandas",
     "get_polars",
     "get_pyarrow",
+    "is_bigframes_dataframe",
+    "is_bigframes_series",
     "is_cudf_dataframe",
     "is_cudf_series",
     "is_dask_dataframe",
