@@ -537,7 +537,7 @@ def test_enum_repr() -> None:
     result = nw.Enum(["a", "b"])
     assert "Enum(categories=['a', 'b'])" in repr(result)
     result = nw.Enum(nw.Implementation)
-    assert "Enum(categories=['pandas', 'modin', 'cudf'" in repr(result)
+    assert "Enum(categories=['pandas', 'bigframes', 'modin', 'cudf'" in repr(result)
 
 
 def test_enum_hash() -> None:
